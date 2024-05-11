@@ -1,6 +1,8 @@
 import java.util.Scanner;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 
 public class UserDataProcessor {
 
@@ -10,8 +12,7 @@ public class UserDataProcessor {
 
     public static void processUserData() {
         Scanner scanner = new Scanner(System.in);
-        System.out.println("Введите данные в формате: Фамилия Имя Отчество датарождения номертелефона пол");
-
+        System.out.println("Введите данные в формате: Фамилия Имя Отчество ДатаРождения НомерТелефона Пол");
         String input = scanner.nextLine();
         String[] data = input.split(" ");
 
@@ -20,14 +21,31 @@ public class UserDataProcessor {
             return;
         }
 
-        try {
-            String lastName = data[0];
-            String firstName = data[1];
-            String middleName = data[2];
-            String birthDate = data[3];
-            long phoneNumber = Long.parseLong(data[4]);
-            char gender = data[5].charAt(0);
+        String lastName = data[0];
+        String firstName = data[1];
+        String middleName = data[2];
+        String birthDate = data[3];
+        long phoneNumber;
+        char gender = data[5].charAt(0);
 
+        try {
+            phoneNumber = Long.parseLong(data[4]);
+        } catch (NumberFormatException e) {
+            System.out.println("Неверный формат данных для номера телефона.");
+            return;
+        }
+
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy");
+        dateFormat.setLenient(false);
+
+        try {
+            dateFormat.parse(birthDate);
+        } catch (ParseException e) {
+            System.out.println("Неверный формат даты рождения. Используйте формат dd.MM.yyyy.");
+            return;
+        }
+
+        try {
             String fileName = lastName + ".txt";
             String userData = lastName + " " + firstName + " " + middleName + " " + birthDate + " " + phoneNumber + " " + gender;
 
@@ -36,12 +54,8 @@ public class UserDataProcessor {
             writer.close();
 
             System.out.println("Данные успешно записаны в файл " + fileName);
-        } catch (NumberFormatException e) {
-            System.out.println("Неверный формат данных для номера телефона.");
-        } catch (IOException e) {
-            System.err.println("Ошибка при записи в файл: " + e.getMessage());
-        } catch (Exception e) {
-            System.err.println("Произошла ошибка: " + e.getMessage());
+        } catch (IOException ex) {
+            System.err.println("Ошибка при записи в файл: " + ex.getMessage());
         }
     }
 }
